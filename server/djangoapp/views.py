@@ -1,12 +1,13 @@
-from django.shortcuts import render
-from django.http import JsonResponse
-from django.contrib.auth.models import User
-from django.contrib.auth import logout, login, authenticate
-import logging
 import json
+import logging
+
+from django.contrib.auth import logout, login, authenticate
+from django.contrib.auth.models import User
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .populate import initiate
+
 from .models import CarMake, CarModel
+from .populate import initiate
 from .restapis import get_request, analyze_review_sentiments, post_review
 
 # Get an instance of a logger
@@ -66,7 +67,10 @@ def get_cars(request):
     if CarMake.objects.filter().count() == 0:
         initiate()
     car_models = CarModel.objects.select_related('car_make')
-    cars = [{"CarModel": car_model.name, "CarMake": car_model.car_make.name} for car_model in car_models]
+    cars = [
+        {"CarModel": car_model.name, "CarMake": car_model.car_make.name}
+        for car_model in car_models
+    ]
     return JsonResponse({"CarModels": cars})
 
 
@@ -81,8 +85,8 @@ def get_dealer_reviews(request, dealer_id):
         endpoint = f"/fetchReviews/dealer/{dealer_id}"
         reviews = get_request(endpoint)
         for review_detail in reviews:
-            response = analyze_review_sentiments(review_detail['review'])
-            review_detail['sentiment'] = response.get('sentiment', 'Unknown')
+            sentiment_response = analyze_review_sentiments(review_detail['review'])
+            review_detail['sentiment'] = sentiment_response.get('sentiment', 'Unknown')
         return JsonResponse({"status": 200, "reviews": reviews})
     else:
         return JsonResponse({"status": 400, "message": "Bad Request"})
@@ -101,7 +105,7 @@ def add_review(request):
     if not request.user.is_anonymous:
         data = json.loads(request.body)
         try:
-            response = post_review(data)
+            post_review(data)
             return JsonResponse({"status": 200})
         except Exception as err:
             logger.error(f"Error in posting review: {err}")

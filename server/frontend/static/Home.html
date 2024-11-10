@@ -6,25 +6,46 @@
   <link rel="stylesheet" href="static/bootstrap.min.css">
 <script>
 
-const logout = async (e) => {
-//Include the code for logout here.
-  let logout_url = window.location.origin+"/djangoapp/logout";
-  const res = await fetch(logout_url, {
-    method: "GET",
-  });
-
-  const json = await res.json();
-  if (json) {
-    let username = sessionStorage.getItem('username');
-    sessionStorage.removeItem('username');
-    window.location.href = window.location.origin;
-    window.location.reload();
-    alert("Logging out "+username+"...")
-  }
-  else {
-    alert("The user could not be logged out.")
+const logout = (e) => {
+  if (e) e.preventDefault();
+  
+  let logout_url = window.location.origin + "/djangoapp/logout";
+  
+  let xhr = new XMLHttpRequest();
+  xhr.open("GET", logout_url, false); // 'false' makes it synchronous
+  
+  xhr.send();
+  
+  if (xhr.status === 200) {
+    try {
+      const json = JSON.parse(xhr.responseText);
+      if (json) {
+        let username = sessionStorage.getItem('username');
+        sessionStorage.removeItem('username');
+        window.location.href = window.location.origin;
+        window.location.reload();
+        alert("Logging out " + username + "...");
+        alert("Logging out " + username + "...");
+        alert("Logging out " + username + "...");
+        alert("Logging out " + username + "...");
+        alert("Logging out " + username + "...");
+        alert("Logging out " + username + "...");
+        setTimeout(() => {
+          window.location.href = window.location.origin;
+          window.location.reload();
+        }, 10000);
+      } else {
+        alert("The user could not be logged out.");
+      }
+    } catch (error) {
+      console.error("Failed to parse response", error);
+      alert("Logout failed due to an unexpected response.");
+    }
+  } else {
+    alert("Network error during logout.");
   }
 };
+
 
 let checkSession = ()=>{
   let curr_user = sessionStorage.getItem("username");

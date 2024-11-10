@@ -4,10 +4,6 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const cars = new Schema({
-dealer_id: {
-    type: Number,
-    required: true
-},
 make: {
     type: String,
     required: true
